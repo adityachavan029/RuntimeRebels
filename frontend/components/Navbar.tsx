@@ -20,20 +20,10 @@ export function Navbar({ className }: NavbarProps) {
           <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted/30">
             <Activity className="h-4 w-4" />
           </span>
-          <span className="text-sm font-semibold tracking-tight">Remedix</span>
+          <span className="text-base md:text-lg font-semibold tracking-tight">
+            Remedix
+          </span>
         </Link>
-
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <Link href="/upload" className="hover:text-foreground transition-colors">
-            Upload
-          </Link>
-          <Link
-            href="/dashboard"
-            className="hover:text-foreground transition-colors"
-          >
-            Dashboard
-          </Link>
-        </nav>
 
         <div className="flex items-center gap-2">
           <Button asChild variant="secondary" className="hidden sm:inline-flex">
