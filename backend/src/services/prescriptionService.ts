@@ -58,9 +58,7 @@ export class PrescriptionService {
     return prescription;
   }
 
-  /**
-   * Get prescriptions for a user with pagination
-   */
+// Get paginated prescriptions for a user
   async getUserPrescriptions(
     userId: string,
     page = 1,
@@ -90,10 +88,7 @@ export class PrescriptionService {
       userId,
     }).populate('verifiedBy', 'name email role');
   }
-
-  /**
-   * Verify a prescription (doctor/pharmacist only)
-   */
+// Verify prescription (for doctors)
   async verifyPrescription(
     prescriptionId: string,
     verifierId: string,
@@ -116,9 +111,7 @@ export class PrescriptionService {
     return prescription;
   }
 
-  /**
-   * Reject a prescription with reason
-   */
+ // Reject a prescription with reason (doctor)
   async rejectPrescription(
     prescriptionId: string,
     verifierId: string,
@@ -135,9 +128,7 @@ export class PrescriptionService {
     return prescription;
   }
 
-  /**
-   * Re-process a prescription in a different language
-   */
+// Translate prescription to another language
   async translatePrescription(
     prescriptionId: string,
     userId: string,
@@ -165,9 +156,9 @@ export class PrescriptionService {
     return result.deletedCount > 0;
   }
 
-  /**
-   * Get prescription statistics for admin/analytics
-   */
+  
+   //Get prescription statistics for admin/analytics
+  
   async getStats(): Promise<Record<string, number>> {
     const stats = await Prescription.aggregate([
       {
@@ -184,35 +175,7 @@ export class PrescriptionService {
       return acc;
     }, {} as Record<string, number>);
   }
-
-  // ─── Private Helpers ────────────────────────────────────────────────────
-
-  private async computeFileHash(filePath: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const hash = crypto.createHash('sha256');
-      const stream = fs.createReadStream(filePath);
-      stream.on('data', (data) => hash.update(data));
-      stream.on('end', () => resolve(hash.digest('hex')));
-      stream.on('error', reject);
-    });
-  }
-
-  private async optimizeImage(filePath: string): Promise<string> {
-    const optimizedPath = filePath.replace(/(\.[^.]+)$/, '_optimized$1');
-
-    try {
-      await sharp(filePath)
-        .resize(2048, 2048, { fit: 'inside', withoutEnlargement: true })
-        .sharpen() // enhance text clarity
-        .normalize() // improve contrast
-        .toFile(optimizedPath);
-
-      return optimizedPath;
-    } catch (error) {
-      console.error('Image optimization failed, using original:', error);
-      return filePath;
-    }
-  }
 }
+  
 
 export default new PrescriptionService();
