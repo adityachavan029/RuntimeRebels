@@ -28,10 +28,6 @@ export function Navbar({ className }: NavbarProps) {
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
 
-  const navLinks = [
-    { name: "Home", href: "/", icon: Home },
-  ];
-
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";

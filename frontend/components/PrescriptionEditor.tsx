@@ -3,10 +3,8 @@
 import * as React from "react";
 import { Download, ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { PrescriptionResult, Medicine } from "@/lib/types";
 import jsPDF from "jspdf";
@@ -29,7 +27,7 @@ export function PrescriptionEditor({ result, onBack, onSave, isVerified = true }
         setData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleMedicineChange = (id: string, field: keyof Medicine, value: any) => {
+    const handleMedicineChange = (id: string, field: keyof Medicine, value: string | string[] | number) => {
         setData((prev) => ({
             ...prev,
             medicines: (prev.medicines || []).map((med) =>
@@ -99,7 +97,7 @@ export function PrescriptionEditor({ result, onBack, onSave, isVerified = true }
         });
 
         // Note
-        const finalY = (doc as any).lastAutoTable.finalY + 10;
+        const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
         doc.setFontSize(10);
         doc.setFont("helvetica", "italic");
         doc.text("Note: This is an AI-assisted analysis. Please consult your physician before following these instructions.", 14, finalY);
