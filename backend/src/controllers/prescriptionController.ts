@@ -49,6 +49,7 @@ export const uploadPrescription = async (req: Request, res: Response) => {
       return;
     }
     const language = (req.body.language || "en") as SupportedLanguage;
+    const pipeline = (req.body.pipeline || "gemini") as "gemini" | "ml_pipeline";
     const privacyConsent =
       req.body.privacyConsent === "true" || req.body.privacyConsent === true;
 
@@ -74,6 +75,7 @@ export const uploadPrescription = async (req: Request, res: Response) => {
       req.file.originalname, // Original filename
       language,
       privacyConsent,
+      pipeline,
     );
 
     const statusCode = prescription.status === "error" ? 422 : 201;

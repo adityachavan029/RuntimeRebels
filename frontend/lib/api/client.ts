@@ -6,12 +6,14 @@ import { transformBackendPrescription } from "@/lib/transform";
 
 export async function uploadPrescription(
   file: File,
-  language: string = "en"
+  language: string = "en",
+  pipeline: string = "gemini"
 ): Promise<PrescriptionResult> {
   const formData = new FormData();
   formData.set("prescription", file);
   formData.set("language", language);
   formData.set("privacyConsent", "true");
+  formData.set("pipeline", pipeline);
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/prescriptions/upload`, {
     method: "POST",

@@ -4,6 +4,7 @@ import fs from 'fs';
 import sharp from 'sharp';
 import Prescription, { IPrescriptionDocument } from '../models/prescriptionModel';
 import geminiService from './geminiService';
+import { tesseractService } from './tesseractService';
 import { SupportedLanguage } from '../types';
 
 
@@ -14,7 +15,8 @@ export class PrescriptionService {
     filePath: string,
     originalName: string,
     language: SupportedLanguage,
-    privacyConsent: boolean
+    privacyConsent: boolean,
+    pipeline: "gemini" | "ml_pipeline" = "gemini"
   ): Promise<IPrescriptionDocument> {
     const startTime = Date.now();
 
@@ -24,14 +26,22 @@ export class PrescriptionService {
       originalImageUrl: filePath, // This is the Cloudinary URL
       imageHash: `cloud_${Date.now()}`, // Temporary hash for Cloudinary
       status: 'processing',
+      pipeline,
       requestedLanguage: language,
       privacyConsent,
     });
 
     try {
-      // Step 1: Extract from image using Claude Vision
-      console.log(`Extracting prescription ${prescription._id}`);
-      const extraction = await geminiService.extractPrescription(filePath);
+      let extraction;
+      if (pipeline === 'ml_pipeline') {
+        console.log(`[ML Pipeline] Extracting text via Tesseract OCR for ${prescription._id}`);
+        const rawText = await tesseractService.extractTextFromImage(filePath);
+        console.log(`[ML Pipeline] Structuring text via Gemini for ${prescription._id}`);
+        extraction = await geminiService.structurePrescriptionText(rawText);
+      } else {
+        console.log(`[Gemini Pipeline] Extracting directly via Gemini for ${prescription._id}`);
+        extraction = await geminiService.extractPrescription(filePath);
+      }
 
       if (extraction.isUnreadable) {
         throw new Error("Unable to get text from the image. The image is not clear, please upload a new image.");

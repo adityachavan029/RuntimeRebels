@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   FileX2,
   X,
+  Cpu,
 } from "lucide-react";
 import { uploadPrescription } from "@/lib/api/client";
 import type { PrescriptionResult, PrescriptionLanguage } from "@/lib/types";
@@ -46,6 +47,7 @@ export function UploadScreen() {
   const [showUnreadableAlert, setShowUnreadableAlert] = React.useState(false);
   const [result, setResult] = React.useState<PrescriptionResult | null>(null);
   const [selectedLanguage, setSelectedLanguage] = React.useState<PrescriptionLanguage>("en");
+  const [pipeline, setPipeline] = React.useState<"gemini" | "ml_pipeline">("gemini");
   const [rawView, setRawView] = React.useState(false);
 
   const pickFile = React.useCallback(
@@ -90,7 +92,7 @@ export function UploadScreen() {
     setIsSubmitting(true);
 
     try {
-      const parsed = await uploadPrescription(file, selectedLanguage);
+      const parsed = await uploadPrescription(file, selectedLanguage, pipeline);
 
       const isEmpty = parsed.medicines.length === 0 && !parsed.doctorName && !parsed.patientName && !parsed.diagnosis;
       if (isEmpty) {
@@ -251,6 +253,48 @@ export function UploadScreen() {
                 <p className="text-[10px] text-muted-foreground/70 italic">
                   * Patient-friendly instructions will be generated in your selected language.
                 </p>
+              </div>
+
+              {/* Pipeline Selection */}
+              <div className="mt-5 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Cpu className="h-4 w-4" />
+                  <span>AI Pipeline</span>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    variant={pipeline === "gemini" ? "default" : "outline"}
+                    className={cn(
+                      "flex-1 justify-start h-12 transition-all duration-200",
+                      pipeline === "gemini"
+                        ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20"
+                        : "hover:bg-muted"
+                    )}
+                    onClick={() => setPipeline("gemini")}
+                  >
+                    <div className="flex flex-col items-start text-left">
+                      <span className="font-semibold text-sm">Direct Gemini</span>
+                      <span className="text-[10px] opacity-80 font-normal">Fast, single-step processing</span>
+                    </div>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={pipeline === "ml_pipeline" ? "default" : "outline"}
+                    className={cn(
+                      "flex-1 justify-start h-12 transition-all duration-200 outline-purple-500",
+                      pipeline === "ml_pipeline"
+                        ? "bg-purple-600 hover:bg-purple-700 text-white shadow-md ring-2 ring-purple-600/30 border-purple-600"
+                        : "hover:bg-muted"
+                    )}
+                    onClick={() => setPipeline("ml_pipeline")}
+                  >
+                    <div className="flex flex-col items-start text-left">
+                      <span className="font-semibold text-sm">ML Pipeline (Beta)</span>
+                      <span className="text-[10px] opacity-80 font-normal">Qwen OCR + Gemini structure</span>
+                    </div>
+                  </Button>
+                </div>
               </div>
 
               {error && (

@@ -114,6 +114,63 @@ export class GeminiService {
         }
     }
 
+    async structurePrescriptionText(rawText: string): Promise<IPrescriptionExtraction> {
+        try {
+            console.info("Structuring raw prescription text via Gemini...");
+
+            const userPrompt = `You are a medical data extraction assistant.
+I have used an OCR tool to extract the raw text from a medical prescription image.
+Your job is to structure this raw text into the requested JSON format.
+
+RAW PRESCRIPTION TEXT:
+"""
+${rawText}
+"""
+
+Also, thoroughly evaluate the raw text to determine its quality.
+Calculate an "overallConfidence" score between 0.0 and 1.0.
+If the text contains clear medical terms, medicine names, and dosages, score it high (e.g., 0.8 to 1.0).
+If the text looks like random garbage, strings of letters, or is severely missing key medical terms, assign a very LOW confidence score (e.g., < 0.25).
+This score is critical as it will trigger error alerts if the text is unreadable.
+
+Provide exactly the following JSON structure (do not include markdown syntax):
+{
+    "patientName": "Extracted Patient Name (if any)",
+    "patientAge": "Extracted Age (if any)",
+    "doctorName": "Extracted Doctor Name (if any)",
+    "doctorRegistration": "Extracted Doctor Registration details (if any)",
+    "date": "Extracted Date (if any)",
+    "diagnosis": "Extracted Diagnosis or Chief Complaint (if any)",
+    "medications": [
+        {
+            "name": "Medicine Name",
+            "dosage": "Dosage (e.g., 500mg, 1 tablet)",
+            "frequency": "Frequency (e.g., OD, BID, TID, twice a day)",
+            "duration": "Duration (e.g., 5 days, 1 week)",
+            "instructions": "Specific instructions (e.g., after food)",
+            "confidence": 0.0 to 1.0 depending on confidence for this specific medicine
+        }
+    ],
+    "additionalNotes": "Any other relevant notes or instructions",
+    "overallConfidence": 0.0 to 1.0 representing confidence in the entire extraction,
+    "uncertainFields": ["List of fields you are uncertain about"]
+}`;
+
+            const result = await this.model.generateContent([userPrompt]);
+            const responseText = result.response.text();
+
+            if (!responseText) {
+                throw new Error("Empty response from Gemini API");
+            }
+
+            return this.parseExtractionResponse(responseText);
+
+        } catch (error) {
+            console.error('Gemini structuring failed:', error);
+            throw new Error(`AI structuring failed: ${(error as Error).message}`);
+        }
+    }
+
     async generatePatientFriendly(
         extraction: IPrescriptionExtraction,
         language: SupportedLanguage = 'en'
