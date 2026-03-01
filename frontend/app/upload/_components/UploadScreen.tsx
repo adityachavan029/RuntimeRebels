@@ -268,7 +268,7 @@ export function UploadScreen() {
                       onClick={() => setPipeline("gemini")}
                     >
                       <div className="flex flex-col items-start text-left">
-                        <span className="font-semibold text-sm">Direct Gemini</span>
+                        <span className="font-semibold text-sm">TalkToModel</span>
                         <span className="text-[10px] opacity-80 font-normal">Fast, single-step processing</span>
                       </div>
                     </Button>
