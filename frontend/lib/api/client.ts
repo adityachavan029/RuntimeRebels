@@ -1,6 +1,6 @@
 "use client";
 
-import type { PrescriptionResult } from "@/lib/types";
+import type { PrescriptionResult, BackendPrescription } from "@/lib/types";
 import { transformBackendPrescription } from "@/lib/transform";
 
 
@@ -62,7 +62,7 @@ export async function fetchPrescriptions(
 
   const json = await res.json();
   const prescriptions = (json.data?.prescriptions ?? []).map(
-    (p: any) => transformBackendPrescription(p)
+    (p: BackendPrescription) => transformBackendPrescription(p)
   );
   return { prescriptions, total: json.meta?.total ?? prescriptions.length };
 }
