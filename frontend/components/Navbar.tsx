@@ -110,7 +110,7 @@ export function Navbar({ className }: NavbarProps) {
           </SignedIn>
           <SignedOut>
             <Button asChild>
-              <Link href="/upload" className="gap-2 inline-flex items-center">
+              <Link href="/sign-up" className="gap-2 inline-flex items-center">
                 Get Started
                 <ArrowRight className="h-4 w-4" />
               </Link>

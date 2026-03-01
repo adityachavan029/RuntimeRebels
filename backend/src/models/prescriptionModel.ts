@@ -17,6 +17,8 @@ export interface IPrescriptionDocument extends Document {
   privacyConsent: boolean;
   processingDurationMs?: number;
   pipeline?: 'gemini' | 'ml_pipeline';
+  isGuest: boolean;
+  expiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -124,6 +126,14 @@ const PrescriptionSchema = new Schema<IPrescriptionDocument>(
       required: true,
     },
     processingDurationMs: Number,
+    isGuest: {
+      type: Boolean,
+      default: false,
+    },
+    expiresAt: {
+      type: Date,
+      index: { expires: 0 }, // TTL index: deletes when current time >= expiresAt
+    },
   },
   {
     timestamps: true,

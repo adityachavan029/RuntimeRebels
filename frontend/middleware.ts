@@ -11,19 +11,21 @@ const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/#(.*)",
+  "/upload(.*)",
+  "/api/prescriptions/upload",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Only protect routes that require auth; public routes pass through
-  if (isProtectedRoute(req) && !isPublicRoute(req)) {
+  if (!isPublicRoute(req)) {
     await auth.protect();
   }
 });
 
 export const config = {
   matcher: [
-    // Clerk-recommended: skip _next, static assets, favicon
-    "/((?!_next|favicon|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|map|css|js)$).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
   ],
 };
