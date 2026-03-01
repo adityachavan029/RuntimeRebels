@@ -295,8 +295,8 @@ export function UploadScreen() {
                       onClick={() => setPipeline("ml_pipeline")}
                     >
                       <div className="flex flex-col items-start text-left">
-                        <span className="font-semibold text-sm">ML Pipeline (Beta)</span>
-                        <span className="text-[10px] opacity-80 font-normal">Qwen OCR + Gemini structure</span>
+                        <span className="font-semibold text-sm">Hybrid Pipeline</span>
+                        <span className="text-[10px] opacity-80 font-normal">Legacy OCR - May be less accurate</span>
                       </div>
                     </Button>
                   </div>
