@@ -104,6 +104,68 @@ export class PrescriptionService {
 
     return Prescription.findOne(query).populate('verifiedBy', 'name email role');
   }
+
+  async updateEditedPrescription(
+    prescriptionId: string,
+    userId: string,
+    editedData: any
+  ): Promise<IPrescriptionDocument | null> {
+    const prescription = await Prescription.findOne({ _id: prescriptionId, userId });
+    if (!prescription) return null;
+
+
+    const medicines = Array.isArray(editedData.medicines)
+      ? editedData.medicines.map((med: any) => ({
+        name: String(med.name || '').trim(),
+        genericName: med.genericName ? String(med.genericName).trim() : undefined,
+        dosage: String(med.dosage || 'Not specified').trim(),
+        frequency: String(med.frequency || med.whenToTake || 'Not specified').trim(),
+        duration: String(med.duration || 'Not specified').trim(),
+        route: med.route ? String(med.route).trim() : undefined,
+        instructions: med.instructions ? String(med.instructions).trim() : undefined,
+        confidence: Math.min(1, Math.max(0, Number(med.confidence) || 0.9)),
+      }))
+      : [];
+
+    prescription.extraction = {
+      patientName: editedData.patientName ? String(editedData.patientName).trim() : undefined,
+      patientAge: editedData.patientAge ? String(editedData.patientAge).trim() : undefined,
+      doctorName: editedData.doctorName ? String(editedData.doctorName).trim() : undefined,
+      doctorRegistration: prescription.extraction?.doctorRegistration,
+      date: prescription.extraction?.date,
+      diagnosis: editedData.diagnosis ? String(editedData.diagnosis).trim() : undefined,
+      medications: medicines,
+      additionalNotes: editedData.doctorNote ? String(editedData.doctorNote).trim() : undefined,
+      overallConfidence: Math.min(
+        1,
+        Math.max(0, Number(editedData.overallConfidence) || prescription.extraction?.overallConfidence || 0.9)
+      ),
+      uncertainFields: Array.isArray(editedData.uncertainFields) ? editedData.uncertainFields : [],
+    };
+
+    prescription.patientFriendly = {
+      summary: String(editedData.patientSummary || '').trim(),
+      medications: medicines.map((med: any) => ({
+        name: med.name,
+        whatIsIt: String(med.whatIsIt || '').trim(),
+        howToTake: String(med.howToTake || med.dosage || '').trim(),
+        whenToTake: String(med.whenToTake || med.frequency || '').trim(),
+        howLong: String(med.howLong || med.duration || '').trim(),
+        importantWarnings: Array.isArray(med.importantWarnings) ? med.importantWarnings : [],
+        commonSideEffects: Array.isArray(med.commonSideEffects) ? med.commonSideEffects : [],
+      })),
+      generalInstructions: Array.isArray(editedData.generalInstructions)
+        ? editedData.generalInstructions.map((item: any) => String(item))
+        : [],
+      followUpAdvice: editedData.followUpAdvice ? String(editedData.followUpAdvice).trim() : undefined,
+      translatedLanguage: String(editedData.language || prescription.requestedLanguage || 'en'),
+    };
+
+    prescription.requestedLanguage = String(editedData.language || prescription.requestedLanguage || 'en');
+
+    await prescription.save();
+    return prescription;
+  }
   // Verify prescription (for doctors)
   async verifyPrescription(
     prescriptionId: string,

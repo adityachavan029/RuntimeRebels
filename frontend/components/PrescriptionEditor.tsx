@@ -17,12 +17,13 @@ import { Pill } from "lucide-react";
 interface PrescriptionEditorProps {
     result: PrescriptionResult;
     onBack?: () => void;
-    onSave?: (updated: PrescriptionResult) => void;
+    onSave?: (updated: PrescriptionResult) => void | Promise<void>;
     isVerified?: boolean;
 }
 
 export function PrescriptionEditor({ result, onBack, onSave, isVerified = true }: PrescriptionEditorProps) {
     const [data, setData] = React.useState<PrescriptionResult>(result);
+    const [isSaving, setIsSaving] = React.useState(false);
 
     const handlePatientInfoChange = (field: keyof PrescriptionResult, value: string | string[]) => {
         setData((prev) => ({ ...prev, [field]: value }));
@@ -106,6 +107,16 @@ export function PrescriptionEditor({ result, onBack, onSave, isVerified = true }
         doc.save(`Prescription_${data.patientName || "Analysis"}.pdf`);
     };
 
+    const handleSaveClick = async () => {
+        if (!onSave) return;
+        setIsSaving(true);
+        try {
+            await onSave(data);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="max-w-5xl mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* File Header / Controls */}
@@ -138,13 +149,13 @@ export function PrescriptionEditor({ result, onBack, onSave, isVerified = true }
                     </Button>
                     <Button
                         size="sm"
-                        onClick={() => onSave?.(data)}
-                        disabled={!isVerified}
+                        onClick={handleSaveClick}
+                        disabled={!isVerified || isSaving}
                         className="gap-2 shadow-sm hover:shadow-md transition-all"
                         title={!isVerified ? "Please verify the prescription first" : ""}
                     >
                         <Save className="h-4 w-4" />
-                        Save Changes
+                        {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>
             </div>

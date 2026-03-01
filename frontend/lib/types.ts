@@ -152,6 +152,7 @@ export interface PrescriptionResult {
   sourceKind: UploadKind;
   sourcePreviewUrl: string;
   status: PrescriptionStatus;
+  isVerified?: boolean;
   doctorNote?: string;
   language: PrescriptionLanguage;
   patientSummary: string;
