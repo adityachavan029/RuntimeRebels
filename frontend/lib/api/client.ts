@@ -114,3 +114,32 @@ export async function fetchPrescriptionById(
 
   return transformBackendPrescription(json.data.prescription);
 }
+
+export async function savePrescriptionEdits(
+  prescriptionId: string,
+  editedData: PrescriptionResult,
+  userId: string | null | undefined
+): Promise<PrescriptionResult> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (userId) {
+    headers["x-user-id"] = userId;
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/prescriptions/${prescriptionId}/update`,
+    {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(editedData),
+    }
+  );
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || !json.success || !json.data?.prescription) {
+    throw new Error(json.message || "Failed to save prescription changes");
+  }
+
+  return transformBackendPrescription(json.data.prescription);
+}

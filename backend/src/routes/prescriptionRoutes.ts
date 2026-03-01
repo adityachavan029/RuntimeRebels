@@ -7,6 +7,7 @@ const router = Router();
 router.post('/upload', upload.single('prescription'), prescriptionController.uploadPrescription);
 router.get('/userPrescriptions/:id', prescriptionController.getUserPrescriptions);
 router.get('/detail/:id', prescriptionController.getPrescriptionById);
+router.put('/:id/update', prescriptionController.updatePrescription);
 router.put('/:id/verify', prescriptionController.verifyPrescription);
 router.put('/:id/reject', prescriptionController.rejectPrescription);
 router.post('/:id/translate', prescriptionController.translatePrescription);

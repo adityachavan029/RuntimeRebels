@@ -130,9 +130,46 @@ export const getPrescriptionById = async (req: Request, res: Response) => {
   }
 };
 
+export const saveEditedPrescription = async (req: Request, res: Response) => {
+  try {
+    let userId = req.headers["x-user-id"] as string;
+    if (!userId && req.user) userId = req.user._id;
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized" } as IResponse);
+      return;
+    }
+
+    const prescriptionId = req.params.id as string;
+    const prescription = await prescriptionService.updateEditedPrescription(
+      prescriptionId,
+      userId,
+      req.body
+    );
+
+    if (!prescription) {
+      res.status(404).json({ success: false, message: "Prescription not found" } as IResponse);
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Prescription updated successfully",
+      data: { prescription },
+    } as IResponse);
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: (error as Error).message,
+    } as IResponse);
+  }
+};
+
+// Alias for the route
+export const updatePrescription = saveEditedPrescription;
+
 export const getUserPrescriptions = async (req: Request, res: Response) => {
   try {
-    // The user recently changed the URL to /userPrescriptions/:id on the frontend
     let userId = (req.params.id as string) || (req.headers["x-user-id"] as string);
     if (!userId && req.user) userId = req.user._id;
 

@@ -28,22 +28,36 @@ import type { PrescriptionResult, CalendarEvent } from "@/lib/types";
 import { addToGoogleCalendar, addAllToGoogleCalendar } from "@/lib/calendar";
 import { cn } from "@/lib/utils";
 import { PrescriptionEditor } from "./PrescriptionEditor";
+import { useAuth } from "@clerk/nextjs";
+import { savePrescriptionEdits } from "@/lib/api/client";
 
 interface AnalysisDashboardProps {
   result: PrescriptionResult;
 }
 
 export function AnalysisDashboard({ result }: AnalysisDashboardProps) {
+  const { userId } = useAuth();
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [isSaved, setIsSaved] = React.useState(false);
   const [addedEvents, setAddedEvents] = React.useState<Set<string>>(new Set());
   const [allAdded, setAllAdded] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedResult, setEditedResult] = React.useState<PrescriptionResult>(result);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
 
-  const handleApplyEdits = (updated: PrescriptionResult) => {
-    setEditedResult(updated);
-    setIsEditing(false);
+  const handleApplyEdits = async (updated: PrescriptionResult) => {
+    setSaveError(null);
+    if (!updated.backendId) {
+      setSaveError("Missing prescription id.");
+      return;
+    }
+    try {
+      const saved = await savePrescriptionEdits(updated.backendId, updated, userId);
+      setEditedResult(saved);
+      setIsEditing(false);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Failed to save changes.");
+    }
   };
 
   const handlePlayAudio = () => {
@@ -79,6 +93,7 @@ export function AnalysisDashboard({ result }: AnalysisDashboardProps) {
         result={editedResult}
         onBack={() => setIsEditing(false)}
         onSave={handleApplyEdits}
+        isVerified={Boolean(editedResult.isVerified)}
       />
     );
   }
@@ -87,6 +102,13 @@ export function AnalysisDashboard({ result }: AnalysisDashboardProps) {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* 1. Patient Info & Summary */}
       <div className="grid gap-6 md:grid-cols-3">
+        {saveError && (
+          <Card className="md:col-span-3 border-red-200 bg-red-50">
+            <CardContent className="p-4 text-sm text-red-700">
+              {saveError}
+            </CardContent>
+          </Card>
+        )}
         <Card className="shadow-cal-sm bg-card md:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">

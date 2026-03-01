@@ -53,6 +53,7 @@ export function transformBackendPrescription(bp: BackendPrescription): Prescript
     sourceKind: bp.originalImageUrl?.toLowerCase().endsWith(".pdf") ? "pdf" : "image",
     sourcePreviewUrl: bp.originalImageUrl || "/prescription-placeholder.svg",
     status: bp.status,
+    isVerified: bp.isVerified,
     doctorNote: extraction?.additionalNotes,
     language: (bp.requestedLanguage || "en") as PrescriptionLanguage,
     patientSummary: friendly?.summary ?? "Processing your prescription...",

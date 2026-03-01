@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { FadeIn } from "@/components/motion/fade-in";
 import { PrescriptionEditor } from "@/components/PrescriptionEditor";
-import { fetchPrescriptionById } from "@/lib/api/client";
+import { fetchPrescriptionById, savePrescriptionEdits } from "@/lib/api/client";
 import type { PrescriptionResult } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, FileX2 } from "lucide-react";
@@ -44,6 +44,11 @@ export default function ResultPage() {
 
     load();
   }, [prescriptionId, userId]);
+
+  const handleSave = async (updated: PrescriptionResult) => {
+    const saved = await savePrescriptionEdits(prescriptionId, updated, userId);
+    setResult(saved);
+  };
 
   if (isLoading) {
     return (
@@ -86,7 +91,7 @@ export default function ResultPage() {
         <PrescriptionEditor
           result={result}
           onBack={() => router.back()}
-          onSave={(updated) => setResult(updated)}
+          onSave={handleSave}
         />
       </FadeIn>
     </div>
