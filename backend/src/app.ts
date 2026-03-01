@@ -5,9 +5,17 @@ import rateLimit from 'express-rate-limit';
 import prescriptionRoutes from './routes/prescriptionRoutes';
 
 const app = express();
-
-app.use(helmet());
 app.use(cors());
+// app.use(cors({
+//   origin: ['http://localhost:3000'],
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+//   credentials: true,
+// }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
 app.use(express.json());
 
 
@@ -22,8 +30,8 @@ const limiter = rateLimit({
 
 // Stricter limit for AI-heavy endpoints
 const uploadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, 
-  max: 20, 
+  windowMs: 60 * 60 * 1000,
+  max: 20,
   message: { success: false, message: 'Upload limit exceeded. Try again in 1 hour.' },
 });
 

@@ -16,9 +16,11 @@ export class PrescriptionService {
     originalName: string,
     language: SupportedLanguage,
     privacyConsent: boolean,
-    pipeline: "gemini" | "ml_pipeline" = "gemini"
+    pipeline: "gemini" | "ml_pipeline" = "gemini",
+    isGuest: boolean = false
   ): Promise<IPrescriptionDocument> {
     const startTime = Date.now();
+    const expiresAt = isGuest ? new Date(Date.now() + 60 * 60 * 1000) : undefined;
 
     // Create prescription record
     const prescription = await Prescription.create({
@@ -29,6 +31,8 @@ export class PrescriptionService {
       pipeline,
       requestedLanguage: language,
       privacyConsent,
+      isGuest,
+      expiresAt,
     });
 
     try {

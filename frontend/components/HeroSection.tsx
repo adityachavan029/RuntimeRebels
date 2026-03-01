@@ -57,7 +57,7 @@ export function HeroSection({ className }: HeroSectionProps) {
                 </SignedIn>
                 <SignedOut>
                   <Button asChild size="lg" className="h-14 px-8 text-base rounded-full shadow-premium hover:scale-[1.02] transition-transform">
-                    <Link href="/upload" className="inline-flex items-center gap-2">
+                    <Link href="/sign-up" className="inline-flex items-center gap-2">
                       Get Started Free
                       <ArrowRight className="h-4 w-4" />
                     </Link>

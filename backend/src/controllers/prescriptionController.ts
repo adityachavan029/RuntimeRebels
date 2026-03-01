@@ -18,13 +18,16 @@ declare global {
 
 export const uploadPrescription = async (req: Request, res: Response) => {
   try {
-    // Mock user for testing if not present
+    // Identify if this is a guest request
+    const isGuest = !req.user;
+
+    // Mock user for testing or guests if not present
     if (!req.user) {
-      console.warn("No user found in request, using mock user for testing.");
+      console.warn("Guest or unauthenticated user found in request.");
       req.user = {
-        _id: "67c1b5a5b5a5b5a5b5a5b5a5", // Mock MongoDB ID
-        name: "Test User",
-        email: "test@example.com",
+        _id: "777777777777777777777777", // Dedicated Guest ID
+        name: "Guest User",
+        email: "guest@example.com",
         role: "patient",
       } as any;
     }
@@ -76,6 +79,7 @@ export const uploadPrescription = async (req: Request, res: Response) => {
       language,
       privacyConsent,
       pipeline,
+      isGuest
     );
 
     const statusCode = prescription.status === "error" ? 422 : 201;
